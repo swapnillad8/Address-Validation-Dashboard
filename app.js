@@ -1,6 +1,9 @@
 // Replace with your Google Sheet public CSV export link
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRB-G_0OHce1UPa5HJjbMe5jT4qUQC26XZGQKOcXdf_uaHJgM-jZu3h4SvCBHGMW_ITwSOd3WrUFwMx/pub?gid=0&single=true&output=csv";
 
+// Replace with your deployed Apps Script Web App URL
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUzY0rEobqzgw36jnh4cxHnbGUFmP0PZdWKcS06lcpsgegaNsBOOW3muEpy-YY3ig/exec";
+
 let map = L.map('map').setView([20.5937, 78.9629], 5); // India default
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
@@ -25,7 +28,7 @@ async function refreshData() {
   let valid = data.filter(r => r[1] === "Valid").length;
   let invalid = total - valid;
   let avgAccuracy = (
-    data.map(r => parseFloat(r[7]) || 0).reduce((a,b)=>a+b,0) / total
+    data.map(r => parseFloat(r[7]) || 0).reduce((a,b)=>a+b,0) / (total || 1)
   ).toFixed(2);
 
   document.getElementById("totalRows").textContent = total;
@@ -34,7 +37,7 @@ async function refreshData() {
   document.getElementById("avgAccuracy").textContent = avgAccuracy + "%";
   document.getElementById("lastUpdated").textContent = new Date().toLocaleString();
 
-  // Clear map
+  // Clear map layers except base
   map.eachLayer((layer) => {
     if (!!layer.toGeoJSON) map.removeLayer(layer);
   });
@@ -52,7 +55,7 @@ async function refreshData() {
       <td>${row[5]}</td>
       <td>${row[6]}</td>
       <td>${row[7]}%</td>
-      <td><button onclick="focusMap(${row[8]},${row[9]})">📍</button></td>
+      <td>${row[8] && row[9] ? `<button onclick="focusMap(${row[8]},${row[9]})">📍</button>` : "-"}</td>
     `;
     tableBody.appendChild(tr);
 
@@ -67,8 +70,19 @@ function focusMap(lat, lng) {
   map.setView([lat, lng], 12);
 }
 
-function runValidation() {
-  alert("This would trigger address validation (via API or webhook).");
+async function runValidation() {
+  try {
+    // Call Google Apps Script Web App to trigger validation
+    const res = await fetch(WEBAPP_URL, { method: "POST" });
+    const msg = await res.text();
+
+    alert("✅ Validation triggered!\n\nResponse: " + msg);
+
+    // After some delay, refresh dashboard
+    setTimeout(refreshData, 3000);
+  } catch (err) {
+    alert("❌ Error running validation: " + err.message);
+  }
 }
 
 function exportCSV() {
