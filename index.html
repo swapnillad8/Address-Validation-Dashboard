@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>📊 Address Validation Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>📊 Address Validation Dashboard</h1>
+  <p>This table shows the latest validated addresses from Google Sheets.</p>
+  <table id="data-table"></table>
+
+  <script>
+    async function loadData() {
+      const res = await fetch("data.csv");
+      const text = await res.text();
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      
+      let table = "<tr>" + rows[0].map(h => `<th>${h}</th>`).join("") + "</tr>";
+      for (let i=1; i<rows.length; i++) {
+        table += "<tr>" + rows[i].map(v => `<td>${v}</td>`).join("") + "</tr>";
+      }
+      document.getElementById("data-table").innerHTML = table;
+    }
+    loadData();
+  </script>
+</body>
+</html>
