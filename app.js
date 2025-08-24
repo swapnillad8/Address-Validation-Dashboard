@@ -1,5 +1,5 @@
 // ===== CONFIG =====
-const API_URL = "https://script.google.com/macros/s/AKfycbzd2-VKCHWML8_uLfXpvJ8FmVAJtgTnfRDR3vmpL_yQWSOan7sVcpTzDAzyTeTUzgJv/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbzelgfDzqReOJo72UWmnJKb-yBTXozgips0KPuBE3yylB1CXXiDBm-b6bAGaAQyAqNr/exec"; 
 // Example: https://script.google.com/macros/s/AKfycbx12345/exec
 
 let sheetData = [];
