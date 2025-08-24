@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>📍 Address Validation Dashboard</title>
   <link rel="stylesheet" href="style.css">
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
@@ -14,19 +15,21 @@
     <p>Powered by Google Sheets + GitHub Pages</p>
   </header>
 
+  <!-- Controls -->
   <section class="controls">
-    <input type="text" id="searchInput" placeholder="🔍 Search address, city">
-    <select id="statusFilter">
+    <input type="text" id="searchInput" placeholder="🔍 Search address, city" oninput="applyFilters()">
+    <select id="statusFilter" onchange="applyFilters()">
       <option value="All">All</option>
       <option value="Valid">Valid</option>
       <option value="Invalid">Invalid</option>
     </select>
-    <input type="number" id="limitInput" min="0" value="0">
+    <input type="number" id="limitInput" min="0" value="0" onchange="applyFilters()">
     <button onclick="refreshData()">🔄 Refresh</button>
     <button onclick="runValidation()">⚡ Run</button>
     <button onclick="exportCSV()">⬇️ Export CSV</button>
   </section>
 
+  <!-- Stats -->
   <section class="stats">
     <div class="card">Total Rows <span id="totalRows">-</span></div>
     <div class="card">Valid <span id="validCount">-</span></div>
@@ -35,6 +38,7 @@
     <div class="card">Last Updated <span id="lastUpdated">-</span></div>
   </section>
 
+  <!-- Map + Table -->
   <main>
     <div id="map"></div>
     <div class="table-container">
