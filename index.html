@@ -2,91 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Address Validation Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-      background: #fff;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background: #eee;
-    }
-    .chart-container {
-      width: 80%;
-      margin: 40px auto;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📍 Address Validation Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-  <h1>📊 Address Validation Dashboard</h1>
+  <header>
+    <h1>📍 Address Validation Dashboard</h1>
+    <p>Powered by Google Sheets + GitHub Pages</p>
+  </header>
 
-  <!-- Chart -->
-  <div class="chart-container">
-    <canvas id="statusChart"></canvas>
-  </div>
+  <section class="controls">
+    <input type="text" id="searchInput" placeholder="🔍 Search address, city">
+    <select id="statusFilter">
+      <option value="All">All</option>
+      <option value="Valid">Valid</option>
+      <option value="Invalid">Invalid</option>
+    </select>
+    <input type="number" id="limitInput" min="0" value="0">
+    <button onclick="refreshData()">🔄 Refresh</button>
+    <button onclick="runValidation()">⚡ Run</button>
+    <button onclick="exportCSV()">⬇️ Export CSV</button>
+  </section>
 
-  <!-- Table -->
-  <h2>Data Table</h2>
-  <table id="dataTable">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
+  <section class="stats">
+    <div class="card">Total Rows <span id="totalRows">-</span></div>
+    <div class="card">Valid <span id="validCount">-</span></div>
+    <div class="card">Invalid <span id="invalidCount">-</span></div>
+    <div class="card">Avg. Accuracy <span id="avgAccuracy">-</span></div>
+    <div class="card">Last Updated <span id="lastUpdated">-</span></div>
+  </section>
 
-  <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRB-G_0OHce1UPa5HJjbMe5jT4qUQC26XZGQKOcXdf_uaHJgM-jZu3h4SvCBHGMW_ITwSOd3WrUFwMx/pub?gid=0&single=true&output=csv"; // 👈 Replace with your Google Sheet CSV link
+  <main>
+    <div id="map"></div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Sr no</th>
+            <th>Status</th>
+            <th>Formatted Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Pincode</th>
+            <th>Country</th>
+            <th>Accuracy</th>
+            <th>Map</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </main>
 
-    async function loadData() {
-      const response = await fetch(sheetURL);
-      const data = await response.text();
-      const rows = data.split("\n").map(r => r.split(","));
-
-      // Build table
-      const table = document.getElementById("dataTable");
-      const thead = table.querySelector("thead");
-      const tbody = table.querySelector("tbody");
-
-      thead.innerHTML = "<tr>" + rows[0].map(h => `<th>${h}</th>`).join("") + "</tr>";
-      tbody.innerHTML = rows.slice(1).map(r =>
-        "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>"
-      ).join("");
-
-      // Build chart (Status column assumed to be last column)
-      const statusIndex = rows[0].indexOf("Status");
-      if (statusIndex >= 0) {
-        const statuses = rows.slice(1).map(r => r[statusIndex]);
-        const counts = {};
-        statuses.forEach(s => counts[s] = (counts[s] || 0) + 1);
-
-        new Chart(document.getElementById("statusChart"), {
-          type: "pie",
-          data: {
-            labels: Object.keys(counts),
-            datasets: [{
-              data: Object.values(counts),
-              backgroundColor: ["#4caf50", "#f44336", "#ff9800", "#2196f3"]
-            }]
-          }
-        });
-      }
-    }
-
-    loadData();
-  </script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
